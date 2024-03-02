@@ -50,7 +50,7 @@ class WeatherListCubit extends Cubit<WeatherListState> {
                       },
                   (value) => {
                         debugPrint('getWeatherByCity& success : $value'),
-                        _weathers.add(value),
+                    _weathers.insert(0,value),
                         _updateState()
                       }),
             });

@@ -1,6 +1,7 @@
 # weather_app
 
 A new Flutter project.
+
 ## Prérequis
 
 - Flutter : [3.19.2]

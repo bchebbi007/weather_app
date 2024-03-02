@@ -28,22 +28,19 @@ class WeatherCubit extends Cubit<WeatherState> {
       locator<SharedPreferencesService>();
   final LocationService _locationService = locator<LocationService>();
   final PermissonHandlerService _permissonHandlerService =
-  locator<PermissonHandlerService>();
+      locator<PermissonHandlerService>();
   final GetWeatherByCity _getWeatherByCity = locator<GetWeatherByCity>();
-
-
 
   final GetFiveDayData _getFiveDayData = locator<GetFiveDayData>();
 
   List<CurrentWeatherData> _weatherList = List.empty(growable: true);
   List<CurrentWeatherData> _fiveDayDataList = List.empty(growable: true);
-   List<String> _cities = List.empty(growable: true);
+  List<String> _cities = List.empty(growable: true);
 
   Position? _currentPosition;
   Placemark? place;
-  bool _isLoading = false ;
+  bool _isLoading = false;
   WeatherCubit() : super(WeatherState()) {
-
     getWeathers();
   }
 
@@ -52,15 +49,17 @@ class WeatherCubit extends Cubit<WeatherState> {
     _weatherList.clear();
     _fiveDayDataList.clear();
     _updateState();
-    _cities = List<String>.from(_sharedPreferencesService.getFromDisk(cityListKey) ?? []) ;
+    _cities = List<String>.from(
+        _sharedPreferencesService.getFromDisk(cityListKey) ?? []);
     getPermission();
     if (_cities.isNotEmpty) {
       for (String city in _cities) {
-        getWeatherByCity(city: city);
+        getWeatherByCity(city: city, fromCurrentPosition: false);
         getFiveDayData(city: city);
       }
     }
   }
+
   void getUserCurrentCity() {
     Task(() => _locationService.getCity(_currentPosition!))
         .attempt()
@@ -69,8 +68,8 @@ class WeatherCubit extends Cubit<WeatherState> {
         .then((either) => {
               either.fold(
                   (failure) => {
-                    _isLoading = false ,
-                    _updateState(),
+                        _isLoading = false,
+                        _updateState(),
                         debugPrint('getUserCurrentCity : $failure'),
                       },
                   (position) => {
@@ -78,15 +77,18 @@ class WeatherCubit extends Cubit<WeatherState> {
                         place = position,
                         if (place?.locality != null)
                           {
-
-                            getWeatherByCity( city: place!.locality!),
+                            getWeatherByCity(
+                                city: place!.locality!,
+                                fromCurrentPosition: true),
                             getFiveDayData(
                               city: place!.locality!,
                             )
-                          }else {
-                          _isLoading = false ,
-                          _updateState(),
-                        }
+                          }
+                        else
+                          {
+                            _isLoading = false,
+                            _updateState(),
+                          }
                       }),
             });
   }
@@ -99,8 +101,8 @@ class WeatherCubit extends Cubit<WeatherState> {
         .then((either) => {
               either.fold(
                   (failure) => {
-                    _isLoading = false ,
-                    _updateState(),
+                        _isLoading = false,
+                        _updateState(),
                         debugPrint('getUserCurrentLocation : $failure'),
                       },
                   (position) => {
@@ -108,41 +110,44 @@ class WeatherCubit extends Cubit<WeatherState> {
                             'getUserCurrentLocation success : $position'),
                         _currentPosition = position,
                         if (_currentPosition != null)
+                          {getUserCurrentCity()}
+                        else
                           {
-                            getUserCurrentCity()
-                          }else{
-                          _isLoading = false ,
-                          _updateState(),
-                          _snackbarService.showErrorSnackbar("Veuillez activer la localisation pour profiter pleinement des fonctionnalités de l'application.")
-                    },
+                            _isLoading = false,
+                            _updateState(),
+                            _snackbarService.showErrorSnackbar(
+                                "Veuillez activer la localisation pour profiter pleinement des fonctionnalités de l'application.")
+                          },
                       }),
             });
   }
 
-
-  void getWeatherByCity({required String city}){
+  void getWeatherByCity(
+      {required String city, required bool fromCurrentPosition}) {
     Task(() => _getWeatherByCity(city))
         .attempt()
         .mapLeftToFailure()
         .run()
         .then((either) => {
-      either.fold(
-              (failure) => {
-                _isLoading = false ,
-                _updateState(),
-            debugPrint('getWeatherByCity : $failure'),
-                _snackbarService.showErrorSnackbar(failure.description)
-          },
-              (value) => {
-                _isLoading = false ,
-                _updateState(),
-            debugPrint(
-                'getWeatherByCity& success : $value'),
-            _weatherList.add(value),
-            _updateState()
-          }),
-    });
+              either.fold(
+                  (failure) => {
+                        _isLoading = false,
+                        _updateState(),
+                        debugPrint('getWeatherByCity : $failure'),
+                        _snackbarService.showErrorSnackbar(failure.description)
+                      },
+                  (value) => {
+                        _isLoading = false,
+                        _updateState(),
+                        debugPrint('getWeatherByCity& success : $value'),
+                        (fromCurrentPosition)
+                            ? _weatherList.insert(0, value)
+                            : _weatherList.add(value),
+                        _updateState()
+                      }),
+            });
   }
+
   void getFiveDayData({required String city}) {
     Task(() => _getFiveDayData(city))
         .attempt()
@@ -152,7 +157,7 @@ class WeatherCubit extends Cubit<WeatherState> {
               either.fold(
                   (failure) => {
                         debugPrint('getFiveDayData : $failure'),
-                    _snackbarService.showErrorSnackbar(failure.description)
+                        _snackbarService.showErrorSnackbar(failure.description)
                       },
                   (value) => {
                         debugPrint('getFiveDayData success : $value'),
@@ -162,31 +167,29 @@ class WeatherCubit extends Cubit<WeatherState> {
             });
   }
 
-
   void getPermission() {
     Task(() => _permissonHandlerService.requestPermission())
         .attempt()
         .mapLeftToFailure()
         .run()
         .then((either) => {
-      either.fold(
-              (failure) => {
-                _isLoading = false ,
-              _updateState(),
-            debugPrint('getPermission failure : $failure'),
-          },
-              (status) => {
-
-                debugPrint('getPermission success : $status'),
-              getUserCurrentLocation(),
-          }),
-    });
+              either.fold(
+                  (failure) => {
+                        _isLoading = false,
+                        _updateState(),
+                        debugPrint('getPermission failure : $failure'),
+                      },
+                  (status) => {
+                        debugPrint('getPermission success : $status'),
+                        getUserCurrentLocation(),
+                      }),
+            });
   }
 
   _updateState() {
     emit(WeatherState(
         fiveDayDataList: _fiveDayDataList,
-isLoading: _isLoading,
+        isLoading: _isLoading,
         weatherList: _weatherList));
   }
 }
@@ -194,13 +197,12 @@ isLoading: _isLoading,
 class WeatherState {
   List<CurrentWeatherData> weatherList;
   List<CurrentWeatherData> fiveDayDataList;
-  bool isLoading ;
+  bool isLoading;
 
   WeatherState(
       {List<CurrentWeatherData>? weatherList,
       List<CurrentWeatherData>? fiveDayDataList,
-        this.isLoading = false
-      })
+      this.isLoading = false})
       : weatherList = weatherList ?? [],
         fiveDayDataList = fiveDayDataList ?? [];
 }

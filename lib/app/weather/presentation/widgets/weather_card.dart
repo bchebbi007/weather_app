@@ -31,21 +31,20 @@ class WeatherCard extends StatelessWidget {
       ),
       child: Stack(
         children: <Widget>[
-          Container(
-            child: AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              leading: IconButton(
-                icon: Icon(
-                  Icons.list,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  WeatherModuleRoute.weatherList.push().then(
-                      (value) => context.read<WeatherCubit>().getWeathers());
-                },
+          AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            actions: [IconButton(
+              icon: Icon(
+                Icons.list,
+                color: Colors.black,
               ),
-            ),
+              onPressed: () {
+                WeatherModuleRoute.weatherList.push().then(
+                        (value) => context.read<WeatherCubit>().getWeathers());
+              },
+            ),],
+
           ),
           Align(
             alignment: const Alignment(0.0, 1.0),

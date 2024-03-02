@@ -15,8 +15,6 @@ class WeatherHomePage extends StatelessWidget {
   PageController pageController =
       PageController(initialPage: 0, viewportFraction: 1);
 
-  // animation duration when scrolling
-  final Duration _nextAnimationDuration = Duration(milliseconds: 550);
 
   WeatherHomePage({super.key});
 
