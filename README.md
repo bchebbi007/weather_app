@@ -1,16 +1,18 @@
 # weather_app
 
-A new Flutter project.
+Application flutter "weather app"
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+L'application que j'ai développée offre une expérience météorologique complète et personnalisée.
+En se basant sur la localisation de l'utilisateur, elle affiche instantanément les conditions météorologiques actuelles de sa région.
+Cependant, pour une flexibilité totale, les utilisateurs ont également la possibilité de saisir manuellement le nom d'une ville afin
+d'obtenir des prévisions précises pour cette zone spécifique.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+pour lancer l'application :
+
+1- flutter clean
+2- flutter pub get
+3- flutter pub run build_runner build --delete-conflicting-outputs
